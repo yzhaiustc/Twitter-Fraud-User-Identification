@@ -1,3 +1,6 @@
+% author: Yujia Zhai
+% This is for CS 235 at UC, Riverside in 19 spring.
+
 %% CLEAN THE WORK SPACE
 
 clear; close all; clc;
@@ -41,22 +44,72 @@ title('Degree distribution')
 
 %% CLEAR AGAIN
 
-clear my_data;
+%clear my_data;
 
-clear count_per_deg uniq_deg degree_per_node
+%clear count_per_deg uniq_deg degree_per_node
 
 %% Question 3
 
-[U, S, V] = svds(my_graph, 40);
-new_adj_matrix = U * S * V';
+% a
+k = 40;
+[U, S, V] = svds(my_graph, k);
 
-diff_mat = 0.0;
-ori_mat = 0.0;
-for i = 1 : m
-    i
-    for j = 1 : n
-        diff_mat = diff_mat + ( new_adj_matrix(i, j) - ...
-            my_graph(i, j) ) ^ 2;
-        ori_mat = ori_mat + my_graph(i, j) ^ 2;
+ori_svd = diag(S);
+total_norm = norm(ori_svd, 2);
+
+for i = 1 : k
+    curr_norm = norm(ori_svd(1:i), 2);
+    if (norm(ori_svd(i+1, :), 2)) / total_norm <= 0.1
+        break;
     end
 end
+
+msg = sprintf('# of eigs is %d, \n loss rate is %f\n', i, ...
+    (norm(ori_svd(i+1, :), 2)) / total_norm);
+
+disp(msg)
+
+
+% b
+graph_length = length(U);
+
+figure
+hold on
+color_box = ["r", "blue", "green", "black", "m"];
+
+for i = 1 : 5
+    plot(1:graph_length, U(:,i), color_box(i))
+end
+xlim([1 graph_length])
+
+legend('sing vec 1', 'sing vec 2', 'sing vec 3',...
+    'sing vec 4', 'sing vec 5')
+
+xlabel('node index')
+ylabel('singular vector')
+title('plot for first 5 singular vectors')
+
+% d
+idx_max = zeros(5, 100);
+for i = 1 : 5
+    [~, idx_max(i, :)] = maxk(U(:,i), 100);
+end
+
+row_nnz = unique(my_data(:, 1));
+
+figure;
+for i = 1 : 5
+    new_graph = my_graph;
+    tmp = setdiff(row_nnz, idx_max(i, :));
+    new_graph(tmp, :) = 0;
+    new_graph(:, tmp) = 0;
+    subplot(2, 3, i)
+    spy(new_graph)
+    msg = sprintf('singular value %d', i);
+    title(msg)
+end
+
+
+
+
+
