@@ -42,6 +42,24 @@ xlabel('Degree')
 ylabel('Node count')
 title('Degree distribution')
 
+
+large_uniq_deg = uniq_deg(uniq_deg > 100);
+abnormal_node = [];
+for i = 1 : length(large_uniq_deg)
+    curr_deg = large_uniq_deg(i);
+    curr_deg_set = find(degree_per_node == curr_deg);
+    if nnz(curr_deg_set) > 5
+        abnormal_node = [abnormal_node; curr_deg_set];
+    end
+end
+
+sort_abn_set = sort(abnormal_node);
+tmp_new_graph = my_graph;
+sort_normal_set = setdiff(1:length(degree_per_node), sort_abn_set);
+tmp_new_graph(sort_normal_set, :) = 0;
+tmp_new_graph(:, sort_normal_set) = 0;
+figure; spy(tmp_new_graph)
+title('extracted abnormal blocks according to degree distribution')
 %% CLEAR AGAIN
 
 %clear my_data;
@@ -75,7 +93,7 @@ graph_length = length(U);
 
 figure
 hold on
-color_box = ["r", "blue", "green", "black", "m"];
+color_box = ['r', 'b', 'g', 'k', 'm'];
 
 for i = 1 : 5
     plot(1:graph_length, U(:,i), color_box(i))
