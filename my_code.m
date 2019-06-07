@@ -110,7 +110,7 @@ title('plot for first 5 singular vectors')
 % d
 idx_max = zeros(5, 100);
 for i = 1 : 5
-    [~, idx_max(i, :)] = maxk(U(:,i), 100);
+    [~, idx_max(i, :)] = maxk(abs(U(:,i)), 100);
 end
 
 row_nnz = unique(my_data(:, 1));
